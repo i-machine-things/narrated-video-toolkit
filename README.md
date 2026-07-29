@@ -92,15 +92,9 @@ Videos in the 5-15 minute range are the target — don't over-tune narration pac
 
 A FastAPI frontend (`app/`) wraps the pipeline: upload a reference voice clip, paste a script (blank-line-separated paragraphs become slides), watch a progress bar, download the finished MP4. Ships with VibeVoice only — no need to carry XTTS/Chatterbox's conflicting dependency pins into the deployed app once one engine has won the comparison.
 
-**Deploying it: build locally on the Docker host, don't pull from a registry.** `.github/workflows/docker-build.yml` still builds and pushes to `ghcr.io/i-machine-things/narrated-video-toolkit` on every push to `master` (kept around as a free build-verification check — if the Dockerfile stops building, that workflow goes red), but **don't rely on pulling that image** for actual deployment. The GHCR package kept requiring authentication for anonymous pulls even after being explicitly set to Public in its settings — most likely an org-wide policy on the linked GitHub org restricting public package visibility regardless of the individual package's own setting. Chasing that down cost a lot of round-trips for no payoff; building locally sidesteps it entirely:
+**Deploying it:** `.github/workflows/docker-build.yml` builds and pushes to `ghcr.io/i-machine-things/narrated-video-toolkit` on every push to `master`. Paste `webapp/docker-compose.yaml` into TrueNAS SCALE's "Custom App" → "Install via YAML" dialog (same flow as the sandbox setup above) to pull and run it.
 
-```bash
-git clone https://github.com/i-machine-things/narrated-video-toolkit.git
-cd narrated-video-toolkit
-docker build -t narrated-video-toolkit:local -f webapp/Dockerfile .
-```
-
-Then deploy with `webapp/docker-compose.yaml`, which references `narrated-video-toolkit:local` with `pull_policy: never` — paste it into TrueNAS SCALE's "Custom App" → "Install via YAML" dialog (same flow as the sandbox setup above) once the image is built on that host.
+**Gotcha hit while setting this up:** a freshly-created GHCR package (created while its repo was still private) can get stuck requiring authentication for anonymous pulls even after both the repo and the package are explicitly set to Public — the permission state from creation time doesn't seem to fully refresh. Confirmed via a controlled test: an unrelated genuinely-public package pulled fine anonymously, while this one consistently returned `401 UNAUTHORIZED` on the token endpoint regardless of tag, repo visibility, or how long we waited. Deleting the package (GitHub → package settings → Danger Zone → Delete this package) and re-triggering the build workflow (`gh workflow run docker-build.yml`, or just push again) to recreate it fresh fixed it immediately. If a package you *just* made public still won't pull anonymously, don't waste time re-checking visibility settings — delete and recreate the package instead.
 
 Other gotchas hit while building this:
 - The bare port shorthand (`ports: ["8080"]`, letting Docker auto-assign the host side) failed the app's "up" action on TrueNAS SCALE — use an explicit `"8080:8080"` mapping instead.

@@ -1,14 +1,6 @@
 services:
   narrated-video-toolkit:
-    # Build this locally on the Docker host first (see README) rather than
-    # pulling from ghcr.io - the GHCR package kept requiring auth even when
-    # set to Public, most likely an org-wide policy on the linked GitHub
-    # org restricting anonymous package pulls. Building locally sidesteps
-    # that entirely: `docker build -t narrated-video-toolkit:local -f
-    # webapp/Dockerfile .` from a clone of the repo, then this compose file
-    # just uses the resulting local image tag - no registry involved.
-    image: narrated-video-toolkit:local
-    pull_policy: never
+    image: ghcr.io/i-machine-things/narrated-video-toolkit:latest
     container_name: narrated-video-toolkit
     ports:
       # Bare port shorthand (just "8080", letting Docker auto-assign the
