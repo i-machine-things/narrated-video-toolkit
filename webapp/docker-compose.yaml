@@ -1,14 +1,20 @@
 services:
   narrated-video-toolkit:
-    image: ghcr.io/i-machine-things/narrated-video-toolkit:latest
+    # Build this locally on the Docker host first (see README) rather than
+    # pulling from ghcr.io - the GHCR package kept requiring auth even when
+    # set to Public, most likely an org-wide policy on the linked GitHub
+    # org restricting anonymous package pulls. Building locally sidesteps
+    # that entirely: `docker build -t narrated-video-toolkit:local -f
+    # webapp/Dockerfile .` from a clone of the repo, then this compose file
+    # just uses the resulting local image tag - no registry involved.
+    image: narrated-video-toolkit:local
+    pull_policy: never
     container_name: narrated-video-toolkit
     ports:
-      # TrueNAS SCALE's Custom App system translates this YAML into its own
-      # Kubernetes-based app stack rather than running literal `docker
-      # compose` - Docker Engine's bare-port auto-assign shorthand (just
-      # "8080") isn't supported there and fails the app's "up" action.
-      # Pick an explicit, unused host port instead; if 8080 is already taken
-      # on your host, change the first number below (host:container).
+      # Bare port shorthand (just "8080", letting Docker auto-assign the
+      # host side) failed the app's "up" action on this TrueNAS SCALE
+      # version - use an explicit host:container mapping instead. If 8080
+      # is already taken on your host, change the first number below.
       - "8080:8080"
     environment:
       # Optional: set to require HTTP Basic Auth on the whole app. Leave unset

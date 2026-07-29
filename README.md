@@ -82,8 +82,27 @@ Tried in this rough order, each an actual step up:
 
 TTS engines guess acronym pronunciation and often guess wrong. Fix it in the narration text itself (the on-screen slide text/title can keep the normal acronym spelling — only the spoken narration string needs the phonetic hint):
 - Spell-out-by-letter acronyms: insert periods between letters, e.g. `D.D.T.C.` — forces individual letter names.
-- Acronyms meant to be read as a word: spell it phonetically, e.g. `ITAR` → `I-TAR` (this project settled on `I-TAR` and `EE-A-R` after a few rounds of trial and error with VibeVoice specifically — different engines may need slightly different spellings, always verify per engine/voice).
+- Acronyms meant to be read as a word: spell it phonetically, e.g. `ITAR` → `I-TAR` (settled on after a few rounds of trial and error with VibeVoice specifically — different engines may need slightly different spellings, always verify per engine/voice). For `EAR`, `EE-A-R` did *not* reliably force letter-by-letter pronunciation with VibeVoice (garbled/tripped over it) — `E.A.R.` (periods, matching the spell-out-by-letter pattern above) worked instead. Don't assume a phonetic spelling that worked for one acronym/model will work for another; verify each one.
 
 ## Timing
 
 Videos in the 5-15 minute range are the target — don't over-tune narration pacing/padding to hit an exact stated runtime like "5 minutes", anything in that band is fine.
+
+## Web app (`app/` + `webapp/`)
+
+A FastAPI frontend (`app/`) wraps the pipeline: upload a reference voice clip, paste a script (blank-line-separated paragraphs become slides), watch a progress bar, download the finished MP4. Ships with VibeVoice only — no need to carry XTTS/Chatterbox's conflicting dependency pins into the deployed app once one engine has won the comparison.
+
+**Deploying it: build locally on the Docker host, don't pull from a registry.** `.github/workflows/docker-build.yml` still builds and pushes to `ghcr.io/i-machine-things/narrated-video-toolkit` on every push to `master` (kept around as a free build-verification check — if the Dockerfile stops building, that workflow goes red), but **don't rely on pulling that image** for actual deployment. The GHCR package kept requiring authentication for anonymous pulls even after being explicitly set to Public in its settings — most likely an org-wide policy on the linked GitHub org restricting public package visibility regardless of the individual package's own setting. Chasing that down cost a lot of round-trips for no payoff; building locally sidesteps it entirely:
+
+```bash
+git clone https://github.com/i-machine-things/narrated-video-toolkit.git
+cd narrated-video-toolkit
+docker build -t narrated-video-toolkit:local -f webapp/Dockerfile .
+```
+
+Then deploy with `webapp/docker-compose.yaml`, which references `narrated-video-toolkit:local` with `pull_policy: never` — paste it into TrueNAS SCALE's "Custom App" → "Install via YAML" dialog (same flow as the sandbox setup above) once the image is built on that host.
+
+Other gotchas hit while building this:
+- The bare port shorthand (`ports: ["8080"]`, letting Docker auto-assign the host side) failed the app's "up" action on TrueNAS SCALE — use an explicit `"8080:8080"` mapping instead.
+- `Starlette`'s `TemplateResponse` signature changed across versions — newer versions want `TemplateResponse(request, name, context)`, not the older `TemplateResponse(name, {"request": request, ...})`. Pin versions (see `webapp/requirements.txt`) or you'll hit a confusing `TypeError: unhashable type: 'dict'` at runtime, not at import time.
+- Smoke-test the whole app end-to-end on the same runtime the Docker image will use (the sandbox, in this case) *before* pushing/deploying — that's how the Starlette bug above got caught, rather than shipping it.
