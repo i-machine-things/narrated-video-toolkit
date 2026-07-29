@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Narrated Video Toolkit</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>🎬 Narrated Video Toolkit</h1>
+    <p class="subtitle">Upload a reference voice clip, write a script, get a narrated animated video back.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>New video</h2>
+      <form id="job-form">
+        <label>
+          Video title <span class="hint">(shown in the footer bar)</span>
+          <input type="text" name="title" placeholder="e.g. Q3 Onboarding Overview" maxlength="120">
+        </label>
+
+        <label>
+          Reference voice audio <span class="hint">(≥20-30s of clean natural speech works best; quiet/noisy clips get denoised and normalized automatically)</span>
+          <input type="file" name="reference_audio" accept="audio/*" required>
+        </label>
+
+        <label>
+          Script <span class="hint">(separate slides with a <strong>blank line</strong> - each paragraph becomes one slide, max {{ max_scenes }} slides)</span>
+          <textarea name="script" rows="12" required placeholder="Welcome to this training video...&#10;&#10;This is the second slide's paragraph...&#10;&#10;And so on."></textarea>
+        </label>
+
+        <button type="submit" id="submit-btn">Generate video</button>
+        <p class="warn">Narration generation is slow (diffusion-based TTS) - budget a few minutes per slide of script, not seconds. Only one render runs at a time; new submissions queue behind it.</p>
+      </form>
+      <div id="form-error" class="error" hidden></div>
+    </section>
+
+    <section class="card">
+      <h2>Jobs</h2>
+      <div id="job-list">
+        {% for job in jobs %}
+        <div class="job" data-job-id="{{ job.id }}">
+          <div class="job-header">
+            <strong>{{ job.title or "(untitled)" }}</strong>
+            <span class="job-time">{{ job.created_at }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="job-status">-</div>
+          <div class="job-actions"></div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

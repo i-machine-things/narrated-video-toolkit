@@ -1,0 +1,130 @@
+:root {
+  --bg: #0b1220;
+  --card: #131c2e;
+  --border: #263148;
+  --text: #e8ebf2;
+  --muted: #8b96ab;
+  --accent: #d4af37;
+  --accent2: #5ac8be;
+  --error: #e05a56;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 28px 24px 16px;
+  text-align: center;
+}
+
+header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.subtitle { color: var(--muted); margin: 0; }
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+
+label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.hint { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+
+input[type=text], input[type=file], textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  background: #0d1524;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+textarea { resize: vertical; }
+
+button {
+  background: var(--accent);
+  color: #1a1400;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.warn { color: var(--muted); font-size: 0.8rem; margin-top: 10px; }
+.error { color: var(--error); margin-top: 12px; }
+
+.job {
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+}
+.job:first-child { border-top: none; padding-top: 0; }
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.job-time { color: var(--muted); font-size: 0.75rem; }
+
+.progress-track {
+  background: #0d1524;
+  border-radius: 6px;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  transition: width 0.4s ease;
+}
+
+.job-status { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+
+.job-actions { margin-top: 8px; display: flex; gap: 10px; align-items: center; }
+.job-actions a, .job-actions button {
+  font-size: 0.85rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.job-actions video { max-width: 100%; border-radius: 8px; margin-top: 8px; }

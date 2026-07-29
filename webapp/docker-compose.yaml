@@ -1,0 +1,18 @@
+services:
+  narrated-video-toolkit:
+    image: ghcr.io/i-machine-things/narrated-video-toolkit:latest
+    container_name: narrated-video-toolkit
+    ports:
+      - "8080:8080"
+    environment:
+      # Optional: set to require HTTP Basic Auth on the whole app. Leave unset
+      # for LAN-only use behind your own network boundary.
+      - APP_PASSWORD=
+    volumes:
+      - video-toolkit-data:/data
+      - video-toolkit-hf-cache:/root/.cache/huggingface
+    restart: unless-stopped
+
+volumes:
+  video-toolkit-data:
+  video-toolkit-hf-cache:
