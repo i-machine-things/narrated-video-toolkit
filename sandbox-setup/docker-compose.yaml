@@ -1,0 +1,25 @@
+services:
+  claude-sandbox:
+    image: debian:bookworm-slim
+    container_name: claude-sandbox
+    command:
+      - bash
+      - -c
+      - >
+        apt-get update &&
+        apt-get install -y --no-install-recommends openssh-server sudo ca-certificates &&
+        useradd -m -s /bin/bash claude &&
+        echo 'claude ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/claude &&
+        mkdir -p /home/claude/.ssh &&
+        echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHkwJVB6frN/tqL5z122LUE2qyJk3hnY1b4xJAnxlaEK claude-video-render-sandbox' > /home/claude/.ssh/authorized_keys &&
+        chown -R claude:claude /home/claude/.ssh &&
+        chmod 700 /home/claude/.ssh &&
+        chmod 600 /home/claude/.ssh/authorized_keys &&
+        mkdir -p /run/sshd &&
+        ssh-keygen -A &&
+        sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config &&
+        sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config &&
+        exec /usr/sbin/sshd -D
+    ports:
+      - "2222:22"
+    restart: unless-stopped
