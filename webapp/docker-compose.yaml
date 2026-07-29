@@ -3,9 +3,13 @@ services:
     image: ghcr.io/i-machine-things/narrated-video-toolkit:latest
     container_name: narrated-video-toolkit
     ports:
-      - "8080"   # container port only - Docker auto-assigns a free host port
-                 # (check it with `docker port narrated-video-toolkit`, or
-                 # the TrueNAS Apps UI app-detail page)
+      # TrueNAS SCALE's Custom App system translates this YAML into its own
+      # Kubernetes-based app stack rather than running literal `docker
+      # compose` - Docker Engine's bare-port auto-assign shorthand (just
+      # "8080") isn't supported there and fails the app's "up" action.
+      # Pick an explicit, unused host port instead; if 8080 is already taken
+      # on your host, change the first number below (host:container).
+      - "8080:8080"
     environment:
       # Optional: set to require HTTP Basic Auth on the whole app. Leave unset
       # for LAN-only use behind your own network boundary.
