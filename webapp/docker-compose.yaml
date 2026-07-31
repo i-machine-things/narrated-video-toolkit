@@ -3,6 +3,10 @@ services:
     image: ghcr.io/i-machine-things/narrated-video-toolkit:latest
     container_name: narrated-video-toolkit
     ports:
+      # Bare port shorthand (just "8080", letting Docker auto-assign the
+      # host side) failed the app's "up" action on this TrueNAS SCALE
+      # version - use an explicit host:container mapping instead. If 8080
+      # is already taken on your host, change the first number below.
       - "8080:8080"
     environment:
       # Optional: set to require HTTP Basic Auth on the whole app. Leave unset
